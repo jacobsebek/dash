@@ -4,7 +4,7 @@
 #include "dash/file.h"
 #include "dash/string.h"
 
-file file_open(string name)
+file file_open(string_p name)
 {
 	if (name == NULL) return NULL;
 	return fopen(name, "a+");
@@ -16,13 +16,13 @@ int file_close(file file)
 	return !fclose(file) ? DASH_OK : DASH_MEMFAULT;
 }
 
-int file_create(string name)
+int file_create(string_p name)
 {
 	if (name == NULL) return DASH_NULLARG;
 	return !fclose(fopen(name, "w")) ? DASH_OK : DASH_MEMFAULT;
 }
 
-int file_remove(string name)
+int file_remove(string_p name)
 {
 	if (name == NULL) return DASH_NULLARG;
 	return !remove(name) ? DASH_OK : DASH_MEMFAULT;
@@ -40,11 +40,11 @@ bool file_eof(file file)
 	return feof(file);
 }
 
-string file_get_line(file file)
+string_p file_get_line(file file)
 {
 	if (file == NULL) return NULL;
 
-	string str = string_create(NULL);
+	string_p str = string_create(NULL);
 
 	char c;
 	while ( (c = fgetc(file)) != '\n' && !feof(file)) {
@@ -55,11 +55,11 @@ string file_get_line(file file)
 	return str;
 }
 
-string file_get_string(file file, uint len)
+string_p file_get_string(file file, uint len)
 {
 	if (file == NULL) return NULL;
 
-	string str = string_create(NULL);
+	string_p str = string_create(NULL);
 
 	int c;
 	for (uint i = 0; i < len && (c = fgetc(file)) != EOF; i++) {
@@ -70,12 +70,12 @@ string file_get_string(file file, uint len)
 	return str;
 }
 
-int file_get_char(file file)
+char file_get_char(file file)
 {
-	if (file == NULL) return DASH_NULLARG;
+	if (file == NULL) return '\0';
 
 	int c = fgetc(file);
-	return !c ? c : DASH_MEMFAULT;
+	return c ? (char)c : '\0';
 }
 
 int file_rewind(file file)
@@ -85,7 +85,7 @@ int file_rewind(file file)
 	return !fseek(file, 0, SEEK_SET) ? DASH_OK : DASH_MEMFAULT;
 }
 
-int file_append(file file, string src)
+int file_append(file file, string_p src)
 {
 	if (file == NULL || src == NULL) return DASH_NULLARG;
 

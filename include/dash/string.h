@@ -2,33 +2,36 @@
 
 #include "dash/dash.h"
 
-typedef char* string;
+#define CTOS(c) (char[2]){c, '\0'} 
 
-string string_create(string src);
-string string_create_c(char c);
+typedef char* string_p;
 
-int string_destroy(string str);
+string_p string_create(string_p src);
+string_p string_create_c(char c);
 
-int string_insert(string* dst, string src, uint pos);
-int string_append(string* dst, string src);
-int string_prepend(string* dst, string src);
+int string_destroy(string_p* str);
 
-uint string_find(string str, string key, uint start, uint end);
+int string_insert(string_p* dst, const string_p src, const uint pos);
+int string_append(string_p* dst, const string_p src);
+int string_prepend(string_p* dst, const string_p src);
 
-string string_substring(string str, uint start, uint end);
-int string_trim(string* str, uint start, uint end);
-string string_cut(string* str, uint start, uint end);
+uint string_find(const string_p str, const string_p key, const uint start, const uint end);
 
-int string_replace(string* dst, string src, uint start, uint end);
-int string_replace_all(string* dst, string key, string src);
+string_p string_substring(string_p* str, const uint start, const uint end);
+int string_trim(string_p* str, const uint start, const uint end);
+string_p string_cut(string_p* str, const uint start, const uint end);
 
-int string_to_lower(string* str);
-int string_to_upper(string* str);
+int string_replace(string_p* dst, const string_p src, const uint start, const uint end);
+int string_replace_all(string_p* dst, const string_p key, const string_p src);
 
-int string_set(string* dst, string src);
-bool string_equals(string str1, string str2);
+int string_to_lower(string_p* str);
+int string_to_upper(string_p* str);
 
-int string_print(string str);
-int string_print_dec(string str);
+int string_copy(string_p* dst, const string_p src);
+int string_move(string_p* dst, const string_p src);
+bool string_equals(const string_p str1, const string_p str2);
 
-uint string_length(string str);
+int string_print(const string_p str);
+int string_print_dec(const string_p str);
+
+uint string_length(const string_p str);
