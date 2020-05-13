@@ -4,5 +4,6 @@
 #define DASH_NULLARG -2
 #define DASH_OK 0
 
-typedef unsigned int uint;
+#include <stddef.h> // the only globally included header for size_t
+
 typedef char bool;

@@ -2,36 +2,36 @@
 
 #include "dash/dash.h"
 
-#define CTOS(c) (char[2]){c, '\0'} 
+#define DS_CTOS(c) (char[2]){c, '\0'} 
 
-typedef char* string_p;
+typedef char* ds_string;
 
-string_p string_create(string_p src);
-string_p string_create_c(char c);
+ds_string string_create(ds_string src);
+ds_string string_create_c(char c);
 
-int string_destroy(string_p* str);
+int string_destroy(ds_string* str);
 
-int string_insert(string_p* dst, const string_p src, const uint pos);
-int string_append(string_p* dst, const string_p src);
-int string_prepend(string_p* dst, const string_p src);
+int string_insert(ds_string* dst, const ds_string src, const size_t pos);
+int string_append(ds_string* dst, const ds_string src);
+int ds_string_prepend(ds_string* dst, const ds_string src);
 
-uint string_find(const string_p str, const string_p key, const uint start, const uint end);
+size_t string_find(const ds_string str, const ds_string key, const size_t start, const size_t end);
 
-string_p string_substring(string_p* str, const uint start, const uint end);
-int string_trim(string_p* str, const uint start, const uint end);
-string_p string_cut(string_p* str, const uint start, const uint end);
+ds_string string_substring(const ds_string str, const size_t start, const size_t end);
+ds_string string_trim(ds_string* str, const size_t start, const size_t end);
+ds_string string_cut(ds_string* str, const size_t start, const size_t end);
 
-int string_replace(string_p* dst, const string_p src, const uint start, const uint end);
-int string_replace_all(string_p* dst, const string_p key, const string_p src);
+int string_replace(ds_string* dst, const ds_string src, const size_t start, const size_t end);
+int string_replace_all(ds_string* dst, const ds_string key, const ds_string src);
 
-int string_to_lower(string_p* str);
-int string_to_upper(string_p* str);
+int string_to_lower(ds_string* str);
+int string_to_upper(ds_string* str);
 
-int string_copy(string_p* dst, const string_p src);
-int string_move(string_p* dst, const string_p src);
-bool string_equals(const string_p str1, const string_p str2);
+int string_copy(ds_string* dst, const ds_string src);
+int string_move(ds_string* dst, const ds_string src);
+bool string_equals(const ds_string str1, const ds_string str2);
 
-int string_print(const string_p str);
-int string_print_dec(const string_p str);
+int ds_string_print(const ds_string str);
+int ds_string_print_dec(const ds_string str);
 
-uint string_length(const string_p str);
+size_t string_length(const ds_string str);
