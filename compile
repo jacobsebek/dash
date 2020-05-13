@@ -1,0 +1,2 @@
+gcc src/*.c -I./include -c
+ar rcs dash-01.a ./*.o
