@@ -1,10 +1,9 @@
 #include <stdio.h>
 
-#include "dash/dash.h"
 #include "dash/file.h"
 #include "dash/string.h"
 
-file file_open(string_p name)
+file file_open(ds_string name)
 {
 	if (name == NULL) return NULL;
 	return fopen(name, "a+");
@@ -16,13 +15,13 @@ int file_close(file file)
 	return !fclose(file) ? DASH_OK : DASH_MEMFAULT;
 }
 
-int file_create(string_p name)
+int file_create(ds_string name)
 {
 	if (name == NULL) return DASH_NULLARG;
 	return !fclose(fopen(name, "w")) ? DASH_OK : DASH_MEMFAULT;
 }
 
-int file_remove(string_p name)
+int file_remove(ds_string name)
 {
 	if (name == NULL) return DASH_NULLARG;
 	return !remove(name) ? DASH_OK : DASH_MEMFAULT;
@@ -40,11 +39,11 @@ bool file_eof(file file)
 	return feof(file);
 }
 
-string_p file_get_line(file file)
+ds_string file_get_line(file file)
 {
 	if (file == NULL) return NULL;
 
-	string_p str = string_create(NULL);
+	ds_string str = string_create(NULL);
 
 	char c;
 	while ( (c = fgetc(file)) != '\n' && !feof(file)) {
@@ -55,14 +54,14 @@ string_p file_get_line(file file)
 	return str;
 }
 
-string_p file_get_string(file file, uint len)
+ds_string file_get_string(file file, size_t len)
 {
 	if (file == NULL) return NULL;
 
-	string_p str = string_create(NULL);
+	ds_string str = string_create(NULL);
 
 	int c;
-	for (uint i = 0; i < len && (c = fgetc(file)) != EOF; i++) {
+	for (size_t i = 0; i < len && (c = fgetc(file)) != EOF; i++) {
 		char cstr[2] = {c, '\0'};
 		string_append(&str, cstr);
 	}
@@ -75,7 +74,7 @@ char file_get_char(file file)
 	if (file == NULL) return '\0';
 
 	int c = fgetc(file);
-	return c ? (char)c : '\0';
+	return c != EOF ? (char)c : '\0';
 }
 
 int file_rewind(file file)
@@ -85,12 +84,12 @@ int file_rewind(file file)
 	return !fseek(file, 0, SEEK_SET) ? DASH_OK : DASH_MEMFAULT;
 }
 
-int file_append(file file, string_p src)
+int file_append(file file, ds_string src)
 {
 	if (file == NULL || src == NULL) return DASH_NULLARG;
 
-	uint srclen = string_length(src);
-	for (uint i = 0; i < srclen; i++)
+	size_t srclen = string_length(src);
+	for (size_t i = 0; i < srclen; i++)
 		if (fputc(src[i], file) == EOF) return DASH_MEMFAULT;
 
 	return DASH_OK;

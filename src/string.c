@@ -3,42 +3,44 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-string_p string_create(string_p src)
+#define DS_STRPNULL(strp) ((strp) == NULL || *(strp) == NULL)
+
+ds_string string_create(char* src)
 {
 	if (src == NULL) src = "";
 
-	string_p str = malloc((strlen(src)+1)*sizeof(char));
+	ds_string str = malloc((strlen(src)+1)*sizeof(char));
 	strcpy(str, src);
 	return str;
 }
 
-string_p string_create_c(char c)
+ds_string string_create_c(char c)
 {
 	char str[2] = {c, '\0'};
 	return string_create(str);
 }
 
-int string_destroy(string_p* str)
+int string_destroy(ds_string* str)
 {
-	if (str == NULL) return DASH_NULLARG;
+	if (DS_STRPNULL(str)) return DASH_NULLARG;
 	free(*str);
 	return DASH_OK;
 }
 
-int string_insert(string_p* dst, const string_p src, const uint pos)
+int string_insert(ds_string* dst, const ds_string src, const size_t pos)
 {
-	if (dst == NULL || src == NULL) return DASH_NULLARG;
+	if (DS_STRPNULL(dst) || src == NULL) return DASH_NULLARG;
 
-	uint dstlen = strlen(*dst), 
+	size_t dstlen = strlen(*dst), 
 		 srclen = strlen(src);
 
 	if (pos > dstlen) return DASH_MEMFAULT;
 
-	uint newlen = dstlen+srclen;
+	size_t newlen = dstlen+srclen;
 
-	string_p new = malloc( (newlen+1)*sizeof(char) );
+	ds_string new = malloc( (newlen+1)*sizeof(char) );
 
-	for (uint i = 0; i < newlen; i++) {
+	for (size_t i = 0; i < newlen; i++) {
 		if (i < pos) new[i] = (*dst)[i];
 		else if (i-pos < srclen) new[i] = src[i-pos];
 		else new[i] = (*dst)[i-srclen];
@@ -51,13 +53,13 @@ int string_insert(string_p* dst, const string_p src, const uint pos)
 	return DASH_OK;
 }
 
-int string_append(string_p* dst, const string_p src) // [ABC0] + [1230] = [ABC0---], [ABC1230]
+int string_append(ds_string* dst, const ds_string src) // [ABC0] + [1230] = [ABC0---], [ABC1230]
 {
-	if (dst == NULL || src == NULL) return DASH_NULLARG;
+	if (DS_STRPNULL(dst) || src == NULL) return DASH_NULLARG;
 
-	uint dstlen = strlen(*dst), 
-		 srclen = strlen(src);
-	uint newlen = dstlen+srclen;
+	size_t dstlen = strlen(*dst), 
+		   srclen = strlen(src);
+	size_t newlen = dstlen+srclen;
 
 	*dst = realloc(*dst, (newlen+1)*sizeof(char));
 	memcpy(*dst+dstlen, src, srclen*sizeof(char));
@@ -66,13 +68,13 @@ int string_append(string_p* dst, const string_p src) // [ABC0] + [1230] = [ABC0-
 	return DASH_OK;
 }
 
-int string_prepend(string_p* dst, const string_p src)
+int ds_string_prepend(ds_string* dst, const ds_string src)
 {
-	if (dst == NULL || src == NULL) return DASH_NULLARG;
+	if (DS_STRPNULL(dst) || src == NULL) return DASH_NULLARG;
 
-	uint dstlen = strlen(*dst), 
+	size_t dstlen = strlen(*dst), 
 		 srclen = strlen(src);
-	uint newlen = dstlen+srclen;
+	size_t newlen = dstlen+srclen;
 
 	*dst = realloc(*dst, (newlen+1)*sizeof(char));
 	memmove(*dst+srclen, *dst, dstlen*sizeof(char));
@@ -82,15 +84,15 @@ int string_prepend(string_p* dst, const string_p src)
 	return DASH_OK;
 }
 
-uint string_find(const string_p str, const string_p key, const uint start, const uint end)
+size_t string_find(const ds_string str, const ds_string key, const size_t start, const size_t end)
 {
 	if (end < start || end >= strlen(str) ||
 		str == NULL || key == NULL) return end+1;
 
-	uint keylength = strlen(key);
+	size_t keylength = strlen(key);
 
-	uint matches = 0;
-	for (uint i = start; i <= end; i++)
+	size_t matches = 0;
+	for (size_t i = start; i <= end; i++)
 		if (str[i] == key[matches]) {
 			if (++matches == keylength) return i-(keylength-1);
 		} else matches = 0;
@@ -98,40 +100,42 @@ uint string_find(const string_p str, const string_p key, const uint start, const
 	return end+1;
 }
 
-string_p string_substring(string_p* str, const uint start, const uint end) //TODO:Better imp
+ds_string string_substring(const ds_string str, const size_t start, const size_t end) //TODO:Better imp
 {
-	if (str == NULL || end < start || end >= strlen(*str)) return NULL;
+	if (str == NULL || end < start || end >= strlen(str)) return NULL;
 
-	uint newlen = end-start+1;
-	string_p new = malloc( (newlen+1)*sizeof(char) );
-	for (uint i = 0; i < newlen; i++)
-		new[i] = (*str)[start+i];
+	size_t newlen = end-start+1;
+	ds_string new = malloc( (newlen+1)*sizeof(char) );
+	for (size_t i = 0; i < newlen; i++)
+		new[i] = str[start+i];
 
 	new[newlen] = '\0';
 	return new;
 }
 
-int string_trim(string_p* str, const uint start, const uint end)
+ds_string string_trim(ds_string* str, const size_t start, const size_t end)
 {
-	if (str == NULL) return DASH_NULLARG;
-	if (end < start || end >= strlen(*str)) return DASH_MEMFAULT;
+	if (DS_STRPNULL(str) || end < start || end >= strlen(*str)) return NULL;
+
+	ds_string copy;
+	if (string_copy(&copy, *str) != DASH_OK) return NULL;
 
 	string_destroy(str);
-	*str = string_substring(str, start, end);
+	*str = string_cut(&copy, start, end);
 
-	return DASH_OK;
+	return copy;
 }
 
-string_p string_cut(string_p* str, const uint start, const uint end)
+ds_string string_cut(ds_string* str, const size_t start, const size_t end)
 {
-	if (str == NULL || end < start || end >= strlen(*str)) return NULL;	
+	if (DS_STRPNULL(str) || end < start || end >= strlen(*str)) return NULL;	
 
-	uint newlen = strlen(*str)-(end-start+1);
+	size_t newlen = strlen(*str)-(end-start+1);
 
-	string_p new = malloc( (newlen+1)*sizeof(char) );
-	string_p cut = string_substring(str, start, end);
+	ds_string new = malloc( (newlen+1)*sizeof(char) );
+	ds_string cut = string_substring(*str, start, end);
 
-	for (uint i = 0; i < newlen; i++) {
+	for (size_t i = 0; i < newlen; i++) {
 		if (i < start) new[i] = (*str)[i];
 		else new[i] = (*str)[i+(end-start+1)];
 	}
@@ -143,21 +147,21 @@ string_p string_cut(string_p* str, const uint start, const uint end)
 	return cut;
 }
 
-int string_replace(string_p* dst, const string_p src, const uint start, const uint end)
+int string_replace(ds_string* dst, const ds_string src, const size_t start, const size_t end)
 {
-	if (dst == NULL || src == NULL) return DASH_NULLARG;
+	if (DS_STRPNULL(dst) || src == NULL) return DASH_NULLARG;
 	if (end < start || end >= strlen(*dst)) return DASH_MEMFAULT;
 
-	uint dstlength = strlen(*dst), 
+	size_t dstlength = strlen(*dst), 
 		 srclength = strlen(src);
 
 	if (end < start || start < 0 || end >= dstlength) return DASH_MEMFAULT;
 
-	uint newlength = dstlength+srclength-(end-start+1);
+	size_t newlength = dstlength+srclength-(end-start+1);
 
-	string_p new = malloc( (newlength+1)*sizeof(char) );
+	ds_string new = malloc( (newlength+1)*sizeof(char) );
 
-	for (uint i = 0; i < newlength; i++) {
+	for (size_t i = 0; i < newlength; i++) {
 		if (i < start) new[i] = (*dst)[i];
 		else if (i-start < srclength) new[i] = src[i-start];
 		else new[i] = (*dst)[i-srclength+(end-start+1)];
@@ -170,48 +174,48 @@ int string_replace(string_p* dst, const string_p src, const uint start, const ui
 	return DASH_OK;
 }
 
-int string_replace_all(string_p* dst, const string_p key, const string_p src)
+int string_replace_all(ds_string* dst, const ds_string key, const ds_string src)
 {
-	if (dst == NULL || key == NULL || src == NULL) return DASH_NULLARG;
+	if (DS_STRPNULL(dst) || key == NULL || src == NULL) return DASH_NULLARG;
 
-	uint dstlength = strlen(*dst),
+	size_t dstlength = strlen(*dst),
 		 keylength = strlen(key),
 		 srclength = strlen(src);
 
-	uint pos = -srclength;
+	size_t pos = -srclength;
 	while (( pos = string_find(*dst, key, pos+srclength, (dstlength=strlen(*dst))-1) ) != dstlength)
 		string_replace(dst, src, pos, pos+keylength-1);
 
 	return DASH_OK;
 }
 
-int string_to_lower(string_p* str)
+int string_to_lower(ds_string* str)
 {
-	if (str == NULL) return DASH_NULLARG;
+	if (DS_STRPNULL(str)) return DASH_NULLARG;
 
-	uint len = strlen(*str);
-	for (uint i = 0; i < len; i++)
+	size_t len = strlen(*str);
+	for (size_t i = 0; i < len; i++)
 		if ((*str)[i] >= 'A' && (*str)[i] <= 'Z') (*str)[i] += 'a'-'A';
 
 	return DASH_OK;
 }
 
-int string_to_upper(string_p* str)
+int string_to_upper(ds_string* str)
 {
-	if (str == NULL) return DASH_NULLARG;
+	if (DS_STRPNULL(str)) return DASH_NULLARG;
 
-	uint len = strlen(*str);
-	for (uint i = 0; i < len; i++)
+	size_t len = strlen(*str);
+	for (size_t i = 0; i < len; i++)
 		if ((*str)[i] >= 'a' && (*str)[i] <= 'z') (*str)[i] -= 'a'-'A';
 
 	return DASH_OK;
 }
 
-int string_copy(string_p* dst, const string_p src)
+int string_copy(ds_string* dst, const ds_string src)
 {
-	if (src == NULL) return DASH_NULLARG;
+	if (DS_STRPNULL(dst) || src == NULL) return DASH_NULLARG;
 
-	string_p new = malloc( (strlen(src)+1)*sizeof(char) );
+	ds_string new = malloc( (strlen(src)+1)*sizeof(char) );
 
 	strcpy(new, src);
 
@@ -221,9 +225,9 @@ int string_copy(string_p* dst, const string_p src)
 	return DASH_OK;
 }
 
-int string_move(string_p* dst, const string_p src)
+int string_move(ds_string* dst, const ds_string src)
 {
-	if (dst == NULL || src == NULL) return DASH_NULLARG;
+	if (DS_STRPNULL(dst) || src == NULL) return DASH_NULLARG;
 
 	if (*dst != NULL && string_destroy(dst) != DASH_OK) return DASH_MEMFAULT;
 
@@ -231,38 +235,40 @@ int string_move(string_p* dst, const string_p src)
 	return DASH_OK;
 }
 
-bool string_equals(const string_p str1, const string_p str2)
+bool string_equals(const ds_string str1, const ds_string str2)
 {
 	if (str1 == NULL || str2 == NULL) return DASH_NULLARG;
 
-	uint len1 = strlen(str1);
+	size_t len1 = strlen(str1);
 	if (len1 != strlen(str2)) return 0;
 
-	for (uint i = 0; i < len1; i++)
+	for (size_t i = 0; i < len1; i++)
 		if (str1[i] != str2[i]) return 0;
 
 	return 1;
 }
 
-int string_print(const string_p str)
+int ds_stringrint(const ds_string str)
 {
 	if (str == NULL) return DASH_NULLARG;
 	return printf("> %s\n", str) ? DASH_OK : DASH_MEMFAULT;
 }
 
-int string_print_dec(const string_p str)
+int ds_stringrint_dec(const ds_string str)
 {
 	if (str == NULL) return DASH_NULLARG;
 	printf("> ");
-	for (uint i = 0; i < strlen(str); i++)
+	for (size_t i = 0; i < strlen(str); i++)
 		if (!printf("%d;", str[i])) return DASH_MEMFAULT;
 	printf("\n");
 
 	return DASH_OK;
 }
 
-uint string_length(const string_p str)
+size_t string_length(const ds_string str)
 {
 	if (str == NULL) return DASH_NULLARG;
 	return strlen(str);
 }
+
+#undef DS_STRPNULL

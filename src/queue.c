@@ -1,4 +1,4 @@
-#include "queue.h"
+#include "dash/queue.h"
 
 queue* queue_create(int (*destroy_element)(void*))
 {

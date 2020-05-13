@@ -1,4 +1,4 @@
-#include "stack.h"
+#include "dash/stack.h"
 
 vector* stack_create(int (*destroy_element)(void*))
 {
@@ -12,8 +12,8 @@ int stack_push(stack* stk, void* element)
 
 void* stack_pop(stack* stk)
 {
-	void* e = vector_get(stk, stack->length-1);
-	vector_remove(stack, stack->length-1);
+	void* e = vector_get(stk, stk->length-1);
+	vector_remove(stk, stk->length-1);
 	return e;
 }
 
