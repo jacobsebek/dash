@@ -29,7 +29,7 @@ int string_to_upper(ds_string* str);
 
 int string_copy(ds_string* dst, const ds_string src);
 int string_move(ds_string* dst, const ds_string src);
-bool string_equals(const ds_string str1, const ds_string str2);
+_Bool string_equals(const ds_string str1, const ds_string str2);
 
 int ds_string_print(const ds_string str);
 int ds_string_print_dec(const ds_string str);

@@ -14,7 +14,7 @@ int file_create(ds_string name);
 int file_remove(ds_string name);
 int file_clear(file file);
 
-bool file_eof(file file);
+_Bool file_eof(file file);
 
 ds_string file_get_line(file file);
 ds_string file_get_string(file file, size_t len);

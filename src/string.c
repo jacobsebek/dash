@@ -235,7 +235,7 @@ int string_move(ds_string* dst, const ds_string src)
 	return DASH_OK;
 }
 
-bool string_equals(const ds_string str1, const ds_string str2)
+_Bool string_equals(const ds_string str1, const ds_string str2)
 {
 	if (str1 == NULL || str2 == NULL) return DASH_NULLARG;
 

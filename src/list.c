@@ -69,7 +69,7 @@ void* list_iter_next(ds_iterator* iter) {
 	return iter->node->data;
 }
 
-bool list_iter_hasnext(ds_iterator* iter) {
+_Bool list_iter_hasnext(ds_iterator* iter) {
 	return !(iter == NULL || iter->node == NULL || iter->node->next == NULL
 			 || iter->node->next == iter->list->head); // break out if the node is pointing back to head
 }

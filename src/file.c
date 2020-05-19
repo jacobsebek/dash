@@ -32,7 +32,7 @@ int file_clear(file file)
 	return freopen(NULL, "w", file) == NULL ? DASH_MEMFAULT : DASH_OK;
 }
 
-bool file_eof(file file)
+_Bool file_eof(file file)
 {
 	if (file == NULL) return DASH_NULLARG;
 
