@@ -1,23 +1,24 @@
 #include "dash/stack.h"
+// TODO: this can be optimized by storing only the top and bottom of the stack
 
-vector* stack_create(int (*destroy_element)(void*))
+ds_stack* stack_create(int (*destroy_element)(void*))
 {
 	return vector_create(destroy_element);
 }
 
-int stack_push(stack* stk, void* element)
+int stack_push(ds_stack* stack, void* element)
 {
-	return vector_append(stk, element);
+	return vector_append(stack, element);
 }
 
-void* stack_pop(stack* stk)
+void* stack_pop(ds_stack* stack)
 {
-	void* e = vector_get(stk, stk->length-1);
-	vector_remove(stk, stk->length-1);
+	void* e = vector_get(stack, stack->length-1);
+	vector_remove(stack, stack->length-1);
 	return e;
 }
 
-int stack_destroy(stack* stk)
+int stack_destroy(ds_stack* stack)
 {
-	return vector_destroy(stk);
+	return vector_destroy(stack);
 }

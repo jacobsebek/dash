@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-vector* vector_create(int (*destroy_element)(void*))
+ds_vector* vector_create(int (*destroy_element)(void*))
 {
-	vector* vec = malloc(sizeof(vector));
+	ds_vector* vec = malloc(sizeof(ds_vector));
 
 	vec -> size = sizeof(void*); // Starting on a size of 1
 	vec -> first = malloc(vec->size);
@@ -16,7 +16,7 @@ vector* vector_create(int (*destroy_element)(void*))
 	return vec;
 }
 
-int vector_insert(vector* vec, void* element, size_t index)
+int vector_insert(ds_vector* vec, void* element, size_t index)
 {
 	if (!vec || !element) return DASH_NULLARG;
 	if (index > vec->length) return DASH_MEMFAULT;
@@ -35,24 +35,24 @@ int vector_insert(vector* vec, void* element, size_t index)
 	return DASH_OK;
 }
 
-int vector_append(vector* vec, void* element) 
+int vector_append(ds_vector* vec, void* element) 
 {
 	vector_insert(vec, element, vec->length);
 }
 
-int vector_push(vector* vec, void* element)
+int vector_push(ds_vector* vec, void* element)
 {
 	vector_insert(vec, element, 0);
 }
 
-void* vector_get(vector* vec, size_t index)
+void* vector_get(ds_vector* vec, size_t index)
 {
-	if (index < vec->length && vec != NULL)
+	if (vec != NULL && index < vec->length)
 		return vec->first[index]; //also &vec->first[index]
 	else return NULL;
 }
 
-size_t vector_getIndex(vector* vec, void* element)
+size_t vector_index(ds_vector* vec, void* element)
 {
 	if (vec == NULL) return vec->length;
 
@@ -62,13 +62,13 @@ size_t vector_getIndex(vector* vec, void* element)
 	return vec->length;
 }
 
-size_t vector_getLength(vector* vec)
+size_t vector_length(ds_vector* vec)
 {
 	if (vec == NULL) return DASH_NULLARG;
 	return vec->length;
 }
 
-int vector_remove(vector* vec, size_t index)
+int vector_remove(ds_vector* vec, size_t index)
 {
 
 	if (vec == NULL) return DASH_NULLARG;
@@ -82,11 +82,11 @@ int vector_remove(vector* vec, size_t index)
 	return returnval;
 }
 
-int vector_destroy(vector* vec) 
+int vector_destroy(ds_vector* vec) 
 {
 	if (vec == NULL) return DASH_NULLARG;
 
-	for (size_t i = 0; i < vector_getLength(vec); i++) {
+	for (size_t i = 0; i < vec->length; i++) {
 		void* e = vector_get(vec, i);
 		if (vec->destroy_element != NULL) vec->destroy_element(e);
 	}

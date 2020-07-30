@@ -3,9 +3,9 @@
 #include "dash/dash.h"
 #include "dash/vector.h"
 
-typedef vector stack;
+typedef ds_vector ds_stack;
 
-stack* stack_create(int (*destroy_element)(void*));
-int stack_push(stack* stk, void* element);
-void* stack_pop(stack* stk);
-int stack_destroy(stack* stk);
+ds_stack* stack_create(int (*destroy_element)(void*));
+int stack_push(ds_stack* stack, void* element);
+void* stack_pop(ds_stack* stack);
+int stack_destroy(ds_stack* stack);
