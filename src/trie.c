@@ -39,6 +39,15 @@ int trie_add(ds_trie* trie, const char* key, const unsigned char (*cencode)(cons
 
 }
 
+static _Bool has_children(ds_trie* trie, _Bool ignore, size_t index_ignore) {
+
+	for (size_t i = 0; i < TRIE_BRANCHES; i++)
+		if (!(ignore && i == index_ignore) && trie->children[i] != NULL)
+			return 1;
+
+	return 0;
+}
+
 void* trie_remove(ds_trie* trie, const char* key, const unsigned char (*cencode)(const char)) {
 	if (trie == NULL || key == NULL) return NULL;
 	
@@ -53,23 +62,11 @@ void* trie_remove(ds_trie* trie, const char* key, const unsigned char (*cencode)
 		if (branch >= TRIE_BRANCHES) return NULL; // Invalid character - out of bounds
 
 		_Bool is_dead = 1;
-		// If not, there is still a chance that the node is literally the fork
-		// (i.e., it has other branches than just the dead one (key)
-		//If this is the first character (trie still == root), regardless on is_dead, this is set
-		// as the last fork
+
 		if (trie->data != NULL || c-key == 0) is_dead = 0;
 		else
-			for (size_t i = 0; i < TRIE_BRANCHES; i++) {
-				if (i != branch && trie->children[i] != NULL) {
-					is_dead = 0;
-					break;
-				}
-			}
+			is_dead = !has_children(trie, 1, branch);
 
-		// If the node is a fork (but is not the last node, where an exception occurs, because it would	
-		// delete only it, and not the whole dead branch)
-		// It is marked as the last fork (we mark the last forks instead of the dead branch children
-		// because it is necessary to set the destroyed pointer to NULL, deleting the branch)
 		if (!is_dead) {
 			last_fork = trie;
 			last_fork_child = branch;
@@ -78,16 +75,18 @@ void* trie_remove(ds_trie* trie, const char* key, const unsigned char (*cencode)
 		// Branch to the next node
 		trie = trie->children[branch];
 		if (trie == NULL) return NULL; // Word does not exist
-
 	}
 
 	if (last_fork == NULL) return NULL;
 
 	void* data = trie->data;
 
-	// Destroy the dead branch
-	trie_destroy(last_fork->children[last_fork_child], NULL);
-	last_fork->children[last_fork_child] = NULL;
+	if (!has_children(trie, 0, 0)) {
+		trie_destroy(last_fork->children[last_fork_child], NULL);
+		last_fork->children[last_fork_child] = NULL;
+	} else {
+		trie->data = NULL;		
+	}
 
 	return data;
 	
