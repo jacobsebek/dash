@@ -1,7 +1,13 @@
 # > Dash >
-Dash (stylized as >Dash>) is a simple low-level data structure manipulation wrapper in C. It allows simplified access to files, nice string tools, queues, stacks, lists, and a vector type.
+Dash is a simple low-level data structure library written in C99.
+Its features include:
+* Vectors
+* Convenient dynamic string tools
+* Queues
+* Stacks
+* Linked lists
+* Simplified access to files
 
 ## How to use
-The installation should be very simple. Make sure you have gcc and binutils ar in PATH (default GCC/MinGW installation is ok) and simply run the `compile` script. A new file should pop up in the directory `dash-xx.a`, you can compile your projects with it by adding 
-```-Ipath_to_include_folder -Lpath_to_lib_folder -ldash-xx.a```
-to GCC
+The installation is very straight forward as Dash is just plain C. Make sure you have `gcc` and binutils' `ar` in PATH (default GCC/MinGW installation) and simply run the `compile` script. This creates the file `dash-xx.a` in the directory.  
+You can compile your projects with it by simply adding `-Ipath_to_include_folder -Lpath_to_lib_folder -ldash-xx.a` to GCC
